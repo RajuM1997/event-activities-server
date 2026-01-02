@@ -1,7 +1,6 @@
 import { Server } from "http";
 import config from "./config";
 import app from "./app";
-import { prisma } from "./utils/prisma";
 
 async function bootstrap() {
   // This variable will hold our server instance

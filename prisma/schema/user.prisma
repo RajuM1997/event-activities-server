@@ -2,10 +2,11 @@ model User {
     id                 String     @id @default(uuid())
     email              String     @unique
     password           String
+    name               String?
     profilePhoto       String?
     contactNumber      String?
     address            String?
-    role               UserRole
+    role               UserRole   @default(USER)
     needPasswordChange Boolean    @default(true)
     status             UserStatus @default(ACTIVE)
     createdAt          DateTime   @default(now())
@@ -21,6 +22,7 @@ model Admin {
     name          String
     email         String   @unique
     profilePhoto  String?
+    address       String
     contactNumber String
     isDeleted     Boolean  @default(false)
     createdAt     DateTime @default(now())
