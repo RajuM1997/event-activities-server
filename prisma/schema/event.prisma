@@ -1,0 +1,14 @@
+model Event {
+    id          String      @id() @default(ulid())
+    eventName   String
+    date        DateTime?
+    category    String
+    location    String
+    description String
+    image       String
+    joiningFee  Int
+    status      EventStatus
+    host        User        @relation(fields: [id], references: [id])
+
+    @@map("events")
+}

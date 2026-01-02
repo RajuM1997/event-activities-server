@@ -9,3 +9,10 @@ enum UserStatus {
     BLOCKED
     DELETED
 }
+
+enum EventStatus {
+    OPEN
+    FULL
+    CANCELLED
+    COMPLETED
+}
