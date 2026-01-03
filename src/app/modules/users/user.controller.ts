@@ -16,19 +16,6 @@ const createUser = catchAsync(
   }
 );
 
-const createAdmin = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const result = await UserService.createAdmin(req);
-
-    sendResponse(res, {
-      success: true,
-      statusCode: 201,
-      message: "Admin created successfully",
-      data: result,
-    });
-  }
-);
-
 const createHost = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result = await UserService.createHost(req);
@@ -36,7 +23,7 @@ const createHost = catchAsync(
     sendResponse(res, {
       success: true,
       statusCode: 201,
-      message: "Admin created successfully",
+      message: "Host created successfully",
       data: result,
     });
   }
@@ -57,7 +44,6 @@ const getAllUser = catchAsync(
 
 export const UserController = {
   createUser,
-  createAdmin,
   createHost,
   getAllUser,
 };

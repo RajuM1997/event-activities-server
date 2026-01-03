@@ -1,49 +1,54 @@
 model User {
-    id                 String     @id @default(uuid())
-    email              String     @unique
+    id                 String       @id @default(uuid())
+    email              String       @unique
     password           String
-    name               String?
-    profilePhoto       String?
-    contactNumber      String?
-    address            String?
-    role               UserRole   @default(USER)
-    needPasswordChange Boolean    @default(true)
-    status             UserStatus @default(ACTIVE)
-    createdAt          DateTime   @default(now())
-    updatedAt          DateTime   @updatedAt
-    admin              Admin?
+    role               UserRole     @default(USER)
+    needPasswordChange Boolean      @default(true)
+    status             UserStatus   @default(ACTIVE)
+    createdAt          DateTime     @default(now())
+    updatedAt          DateTime     @updatedAt
     host               Host?
-    event              Event?
+    userProfile        UserProfile?
 
     @@map("users")
 }
 
-model Admin {
-    id            String   @id @default(uuid())
-    name          String
-    email         String   @unique
-    profilePhoto  String?
-    address       String
-    contactNumber String
-    isDeleted     Boolean  @default(false)
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
+model UserProfile {
+    id           String    @id() @default(uuid())
+    name         String?
+    profilePhoto String?
+    interests    Interests
+    bio          String?
+    location     Location?
+    email        String    @unique
+    user         User      @relation(fields: [email], references: [email])
+    review       Review[]
+    event        Event[]
 
-    user User @relation(fields: [email], references: [email])
-
-    @@map("admins")
+    @@map("user_profiles")
 }
 
 model Host {
-    id            String   @id @default(uuid())
-    name          String
-    email         String   @unique
-    profilePhoto  String?
-    contactNumber String
-    address       String?
-    user          User     @relation(fields: [email], references: [email])
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
+    id           String   @id @default(uuid())
+    email        String   @unique
+    name         String?
+    profilePhoto String?
+    user         User     @relation(fields: [email], references: [email])
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+    review       Review[]
+    event        Event[]
 
     @@map("hosts")
+}
+
+model Location {
+    id            String      @id() @default(uuid())
+    city          String
+    area          String
+    country       String
+    userProfileId String      @unique
+    user          UserProfile @relation(fields: [userProfileId], references: [id])
+
+    @@map("locations")
 }

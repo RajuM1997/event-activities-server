@@ -16,3 +16,20 @@ enum EventStatus {
     CANCELLED
     COMPLETED
 }
+
+enum Interests {
+    Music
+    Sports
+    Gaming
+    Art
+    Travel
+    Fitness
+}
+
+enum EventCategory {
+    Concert
+    Live_Music
+    Movie_Night
+    Stand_up_Comedy
+    Theater
+}

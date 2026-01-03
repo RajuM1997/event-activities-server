@@ -1,14 +1,41 @@
 model Event {
-    id          String      @id() @default(ulid())
-    eventName   String
-    date        DateTime?
-    category    String
-    location    String
-    description String
-    image       String
-    joiningFee  Int
-    status      EventStatus
-    host        User        @relation(fields: [id], references: [id])
+    id              String        @id() @default(ulid())
+    eventName       String
+    date            DateTime?
+    category        EventCategory
+    location        String
+    description     String
+    image           String
+    minParticipants Int
+    maxParticipants Int
+    joiningFee      Int
+    status          EventStatus
+    hostId          String
+    host            Host          @relation(fields: [hostId], references: [id])
+    userId          String
+    user            UserProfile   @relation(fields: [userId], references: [id])
+    review          Review[]
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
 
     @@map("events")
+}
+
+model Review {
+    id     String      @id @default(uuid())
+    userId String
+    user   UserProfile @relation(fields: [userId], references: [id])
+
+    hostId String
+    host   Host   @relation(fields: [hostId], references: [id])
+
+    eventId String @unique
+    event   Event  @relation(fields: [eventId], references: [id])
+
+    rating    Float
+    comment   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("reviews")
 }

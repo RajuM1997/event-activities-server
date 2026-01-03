@@ -8,68 +8,63 @@ const createUser = async (req: Request) => {
     req.body.password,
     Number(process.env.BCRYPT_SALT)
   );
-  const userInfo = req.body;
+  const { password, locationData, userData } = req.body;
 
-  const user = await prisma.user.create({
-    data: { ...userInfo, password: hashPassword },
-  });
-  return user;
-};
-
-const createAdmin = async (req: Request) => {
-  const hashPassword = await bcrypt.hash(
-    req.body.password,
-    Number(process.env.BCRYPT_SALT)
-  );
-  const userInfo = req.body;
   return prisma.$transaction(async (tnx) => {
     await tnx.user.create({
       data: {
-        email: userInfo.email,
+        email: userData.email,
         password: hashPassword,
-        role: UserRole.ADMIN,
       },
     });
-    const { password, ...rest } = userInfo;
-    return await tnx.admin.create({
-      data: rest,
+
+    const userProfile = await tnx.userProfile.create({
+      data: userData,
     });
+    await tnx.location.create({
+      data: { userProfileId: userProfile.id, ...locationData },
+    });
+    return userProfile;
   });
 };
 
 const createHost = async (req: Request) => {
+  const { password, hostData } = req.body;
+
   const hashPassword = await bcrypt.hash(
-    req.body.password,
+    password,
     Number(process.env.BCRYPT_SALT)
   );
-  const userInfo = req.body;
+
   return prisma.$transaction(async (tnx) => {
     await tnx.user.create({
       data: {
-        email: userInfo.email,
+        email: hostData.email,
         password: hashPassword,
         role: UserRole.HOST,
       },
     });
-    const { password, ...rest } = userInfo;
+
     return await tnx.host.create({
-      data: rest,
+      data: hostData,
     });
   });
 };
 
 const getAllUser = async () => {
   const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      role: true,
-      needPasswordChange: true,
-      status: true,
-      createdAt: true,
-      updatedAt: true,
-      admin: true,
-      host: true,
+    include: {
+      userProfile: {
+        include: {
+          location: {
+            select: {
+              city: true,
+              area: true,
+              country: true,
+            },
+          },
+        },
+      },
     },
   });
   return users;
@@ -77,7 +72,6 @@ const getAllUser = async () => {
 
 export const UserService = {
   createUser,
-  createAdmin,
   createHost,
   getAllUser,
 };
