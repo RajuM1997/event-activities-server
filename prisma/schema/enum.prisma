@@ -33,3 +33,8 @@ enum EventCategory {
     Stand_up_Comedy
     Theater
 }
+
+enum PaymentStatus {
+    PAID
+    UNPAID
+}

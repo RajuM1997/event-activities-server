@@ -22,13 +22,13 @@ const loginWithCredential = async (payload: {
   }
 
   const accessToken = jwtHelper.generateToken(
-    { email: user.email, role: user.role },
+    { email: user.email, role: user.role, id: user.id },
     config.jwt.access_secret as Secret,
     config.jwt.access_expire as string
   );
 
   const refreshToken = jwtHelper.generateToken(
-    { email: user.email, role: user.role },
+    { email: user.email, role: user.role, id: user.id },
     config.jwt.refresh_secret as Secret,
     config.jwt.refresh_expire as string
   );

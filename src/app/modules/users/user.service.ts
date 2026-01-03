@@ -2,13 +2,21 @@ import bcrypt from "bcryptjs";
 import { Request } from "express";
 import prisma from "../../../utils/prisma";
 import { UserRole } from "@prisma/client";
+import { fileUploader } from "../../../helpers/fileUpload";
 
 const createUser = async (req: Request) => {
+  const file = req.file;
+  const { locationData, userData } = req.body;
+
+  if (file) {
+    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+    userData.profilePhoto = uploadToCloudinary?.secure_url;
+  }
+
   const hashPassword = await bcrypt.hash(
     req.body.password,
     Number(process.env.BCRYPT_SALT)
   );
-  const { password, locationData, userData } = req.body;
 
   return prisma.$transaction(async (tnx) => {
     await tnx.user.create({
@@ -29,7 +37,13 @@ const createUser = async (req: Request) => {
 };
 
 const createHost = async (req: Request) => {
+  const file = req.file;
   const { password, hostData } = req.body;
+
+  if (file) {
+    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+    hostData.profilePhoto = uploadToCloudinary?.secure_url;
+  }
 
   const hashPassword = await bcrypt.hash(
     password,

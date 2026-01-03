@@ -25,6 +25,7 @@ app.get("/", (req: Request, res: Response) => {
     Message: "event server..",
   });
 });
+console.log(new Date());
 
 app.use("/api/v1", router);
 
