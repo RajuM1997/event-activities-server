@@ -29,15 +29,16 @@ model UserProfile {
 }
 
 model Host {
-    id           String   @id @default(uuid())
-    email        String   @unique
-    name         String?
-    profilePhoto String?
-    user         User     @relation(fields: [email], references: [email])
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @updatedAt
-    review       Review[]
-    event        Event[]
+    id            String   @id @default(uuid())
+    email         String   @unique
+    name          String?
+    profilePhoto  String?
+    averageRating Float    @default(0.0)
+    user          User     @relation(fields: [email], references: [email])
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    review        Review[]
+    event         Event[]
 
     @@map("hosts")
 }

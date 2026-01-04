@@ -3,6 +3,7 @@ import { Request } from "express";
 import prisma from "../../../utils/prisma";
 import { UserRole } from "@prisma/client";
 import { fileUploader } from "../../../helpers/fileUpload";
+import { IJWTPayload } from "../../../types/common";
 
 const createUser = async (req: Request) => {
   const file = req.file;
@@ -84,8 +85,43 @@ const getAllUser = async () => {
   return users;
 };
 
+const getMe = async (user: IJWTPayload) => {
+  if (user.role === UserRole.HOST) {
+    return await prisma.host.findUniqueOrThrow({
+      where: {
+        email: user.email,
+      },
+    });
+  }
+  return await prisma.userProfile.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+    include: {
+      booking: {
+        select: {
+          id: true,
+          amount: true,
+          bookingStatus: true,
+          status: true,
+          transactionId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+};
+
+// const softDeleteUser = async (id: string,user: IJWTPayload) => {
+//   if (user.role === UserRole.USER) {
+//     re
+//   }
+// }
+
 export const UserService = {
   createUser,
   createHost,
   getAllUser,
+  getMe,
 };

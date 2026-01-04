@@ -24,7 +24,7 @@ model Event {
 model Booking {
     id                 String        @id @default(uuid())
     userId             String        @unique
-    eventId            String        @unique
+    eventId            String
     user               UserProfile   @relation(fields: [userId], references: [id])
     event              Event         @relation(fields: [eventId], references: [id])
     amount             Float

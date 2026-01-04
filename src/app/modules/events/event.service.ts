@@ -7,6 +7,9 @@ import { EventStatus, Prisma, UserRole } from "@prisma/client";
 import ApiError from "../../errors/ApiError";
 import { IOptions, paginationHelper } from "../../../helpers/pagination";
 import { eventFilterableFields } from "./event.constant";
+import { v4 as uuidv4 } from "uuid";
+import { stripe } from "../../../helpers/stripe";
+import config from "../../../config";
 
 const createEvent = async (req: Request, user: IJWTPayload) => {
   const file = req.file;
@@ -154,6 +157,9 @@ const joinEvent = async (id: string, user: IJWTPayload) => {
       id,
     },
   });
+  const userInfo = await prisma.userProfile.findUniqueOrThrow({
+    where: { email: user.email },
+  });
   if (event.joinCount >= event.maxParticipants) {
     await prisma.event.update({
       where: {
@@ -168,8 +174,9 @@ const joinEvent = async (id: string, user: IJWTPayload) => {
       "Event participants full you can not join this event"
     );
   }
+  const transactionId = uuidv4();
   return await prisma.$transaction(async (tnx) => {
-    return await tnx.event.update({
+    await tnx.event.update({
       where: {
         id,
       },
@@ -179,6 +186,37 @@ const joinEvent = async (id: string, user: IJWTPayload) => {
         },
       },
     });
+    const bookingData = await tnx.booking.create({
+      data: {
+        eventId: event.id,
+        amount: event.joiningFee,
+        userId: userInfo.id,
+        transactionId,
+      },
+    });
+    const session = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price_data: {
+            currency: "bdt",
+            product_data: {
+              name: `Event joining with ${event.eventName}`,
+            },
+            unit_amount: event.joiningFee * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        eventId: event.id,
+        bookingId: bookingData.id,
+      },
+      mode: "payment",
+      success_url: `${config.client_url}?success=true`,
+      cancel_url: `${config.client_url}?cancel=false`,
+    });
+
+    return { paymentUrl: session.url };
   });
 };
 

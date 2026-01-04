@@ -35,7 +35,7 @@ router.patch(
 );
 router.patch(
   "/join-event/:id",
-  checkAuth(UserRole.HOST, UserRole.ADMIN),
+  checkAuth(UserRole.USER),
   EventController.joinEvent
 );
 

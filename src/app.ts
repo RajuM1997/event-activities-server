@@ -5,9 +5,15 @@ import httpStatus from "http-status";
 import router from "./app/routes";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
+import { BookingController } from "./app/modules/bookings/booking.controller";
 
 const app: Application = express();
 
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  BookingController.handleStripeWebhookEvent
+);
 app.use(
   cors({
     origin: ["http://localhost:3000", "http://localhost:3001"],

@@ -8,6 +8,7 @@ import { UserValidation } from "./user.validation";
 const router = Router();
 
 router.get("/", UserController.getAllUser);
+router.get("/me", checkAuth(...Object.values(UserRole)), UserController.getMe);
 router.post(
   "/create-user",
   fileUploader.upload.single("file"),
