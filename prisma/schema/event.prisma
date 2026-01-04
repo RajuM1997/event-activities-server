@@ -10,6 +10,7 @@ model Event {
     maxParticipants Int
     joiningFee      Int
     joinCount       Int           @default(0)
+    isDeleted       Boolean       @default(false)
     status          EventStatus
     hostId          String        @unique
     host            Host          @relation(fields: [hostId], references: [id])

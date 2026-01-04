@@ -3,7 +3,7 @@ import { Request } from "express";
 import { fileUploader } from "../../../helpers/fileUpload";
 import prisma from "../../../utils/prisma";
 import { IJWTPayload } from "../../../types/common";
-import { EventStatus, Prisma, UserRole } from "@prisma/client";
+import { BookingStatus, EventStatus, Prisma, UserRole } from "@prisma/client";
 import ApiError from "../../errors/ApiError";
 import { IOptions, paginationHelper } from "../../../helpers/pagination";
 import { eventFilterableFields } from "./event.constant";
@@ -220,20 +220,26 @@ const joinEvent = async (id: string, user: IJWTPayload) => {
   });
 };
 
-const cancelJoinEvent = async (id: string, user: IJWTPayload) => {
-  const event = await prisma.event.findUniqueOrThrow({
+const cancelJoinEvent = async (
+  id: string,
+  bookingId: string,
+  user: IJWTPayload
+) => {
+  const userInfo = await prisma.userProfile.findUniqueOrThrow({
     where: {
-      id,
+      email: user.email,
     },
   });
-  if (event.joinCount >= event.maxParticipants) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      "Event participants full you can not join this event"
-    );
-  }
+
+  await prisma.booking.findUniqueOrThrow({
+    where: {
+      userId: userInfo.id,
+      eventId: id,
+    },
+  });
+
   return await prisma.$transaction(async (tnx) => {
-    return await tnx.event.update({
+    await tnx.event.update({
       where: {
         id,
       },
@@ -243,6 +249,41 @@ const cancelJoinEvent = async (id: string, user: IJWTPayload) => {
         },
       },
     });
+    return tnx.booking.update({
+      where: {
+        id: bookingId,
+      },
+      data: {
+        bookingStatus: BookingStatus.CANCELLED,
+      },
+    });
+  });
+};
+
+const softEventDelete = async (id: string, user: IJWTPayload) => {
+  const hostInfo = await prisma.host.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+  });
+  const updatedEvent = await prisma.event.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+  if (hostInfo.id !== updatedEvent.hostId && user.role !== UserRole.ADMIN) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "You are not able to delete this event"
+    );
+  }
+  await prisma.event.update({
+    where: {
+      id,
+    },
+    data: {
+      isDeleted: true,
+    },
   });
 };
 
@@ -254,4 +295,5 @@ export const EventService = {
   getEventById,
   joinEvent,
   cancelJoinEvent,
+  softEventDelete,
 };

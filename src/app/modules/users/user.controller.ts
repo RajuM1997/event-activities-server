@@ -61,9 +61,50 @@ const getMe = catchAsync(
   }
 );
 
+const updateProfile = catchAsync(
+  async (
+    req: Request & { user?: IJWTPayload },
+    res: Response,
+    next: NextFunction
+  ) => {
+    const user = req.user;
+    const result = await UserService.updateProfile(
+      user as IJWTPayload,
+      req.body
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: 200,
+      message: "User profile updated successfully",
+      data: result,
+    });
+  }
+);
+
+const softDeleteUser = catchAsync(
+  async (
+    req: Request & { user?: IJWTPayload },
+    res: Response,
+    next: NextFunction
+  ) => {
+    const user = req.user;
+    const result = await UserService.softDeleteUser(user as IJWTPayload);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: 200,
+      message: "User profile deleted successfully",
+      data: result,
+    });
+  }
+);
+
 export const UserController = {
   createUser,
   createHost,
   getAllUser,
   getMe,
+  updateProfile,
+  softDeleteUser,
 };

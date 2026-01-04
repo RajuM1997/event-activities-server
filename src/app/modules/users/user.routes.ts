@@ -8,7 +8,9 @@ import { UserValidation } from "./user.validation";
 const router = Router();
 
 router.get("/", UserController.getAllUser);
+
 router.get("/me", checkAuth(...Object.values(UserRole)), UserController.getMe);
+
 router.post(
   "/create-user",
   fileUploader.upload.single("file"),
@@ -19,6 +21,7 @@ router.post(
     return UserController.createUser(req, res, next);
   }
 );
+
 router.post(
   "/create-host",
   // checkAuth(UserRole.ADMIN),
@@ -29,6 +32,18 @@ router.post(
     );
     return UserController.createHost(req, res, next);
   }
+);
+
+router.patch(
+  "/update-profile",
+  checkAuth(...Object.values(UserRole)),
+  UserController.updateProfile
+);
+
+router.patch(
+  "/delete-profile",
+  checkAuth(...Object.values(UserRole)),
+  UserController.softDeleteUser
 );
 
 export const userRoutes = router;

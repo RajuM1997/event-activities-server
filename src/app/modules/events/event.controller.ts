@@ -114,6 +114,45 @@ const joinEvent = catchAsync(
   }
 );
 
+const cancelJoinEvent = catchAsync(
+  async (
+    req: Request & { user?: IJWTPayload },
+    res: Response,
+    next: NextFunction
+  ) => {
+    const user = req.user;
+    const bookingId = req.query.bookingId;
+    const result = await EventService.cancelJoinEvent(
+      req.params.id,
+      bookingId as string,
+      user as IJWTPayload
+    );
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Event booking cancel successfully",
+      data: result,
+    });
+  }
+);
+
+const softEventDelete = catchAsync(
+  async (
+    req: Request & { user?: IJWTPayload },
+    res: Response,
+    next: NextFunction
+  ) => {
+    const user = req.user;
+    await EventService.softEventDelete(req.params.id, user as IJWTPayload);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "Event delete successfully",
+      data: null,
+    });
+  }
+);
+
 export const EventController = {
   createEvent,
   updateEvent,
@@ -121,4 +160,6 @@ export const EventController = {
   deleteEvent,
   getEventById,
   joinEvent,
+  softEventDelete,
+  cancelJoinEvent,
 };

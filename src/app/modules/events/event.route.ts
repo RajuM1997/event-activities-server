@@ -8,6 +8,7 @@ import { UserRole } from "@prisma/client";
 const router = Router();
 
 router.get("/", EventController.getAllEvent);
+
 router.get("/:id", EventController.getEventById);
 
 router.post(
@@ -33,16 +34,29 @@ router.patch(
     return EventController.updateEvent(req, res, next);
   }
 );
+
 router.patch(
   "/join-event/:id",
   checkAuth(UserRole.USER),
   EventController.joinEvent
 );
 
+router.patch(
+  "/cancel-event/:id",
+  checkAuth(UserRole.USER),
+  EventController.cancelJoinEvent
+);
+
 router.delete(
   "/:id",
   checkAuth(UserRole.HOST, UserRole.ADMIN),
   EventController.deleteEvent
+);
+
+router.patch(
+  "/soft-delete/:id",
+  checkAuth(UserRole.HOST, UserRole.ADMIN),
+  EventController.softEventDelete
 );
 
 export const eventRoutes = router;

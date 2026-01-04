@@ -113,15 +113,51 @@ const getMe = async (user: IJWTPayload) => {
   });
 };
 
-// const softDeleteUser = async (id: string,user: IJWTPayload) => {
-//   if (user.role === UserRole.USER) {
-//     re
-//   }
-// }
+const softDeleteUser = async (user: IJWTPayload) => {
+  if (user.role === UserRole.USER) {
+    return prisma.userProfile.update({
+      where: {
+        email: user.email,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+  } else {
+    return prisma.host.update({
+      where: {
+        email: user.email,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+  }
+};
+
+const updateProfile = async (user: IJWTPayload, payload: any) => {
+  if (user.role === UserRole.USER) {
+    return await prisma.userProfile.update({
+      where: {
+        email: user.email,
+      },
+      data: payload,
+    });
+  } else {
+    return await prisma.host.update({
+      where: {
+        email: user.email,
+      },
+      data: payload,
+    });
+  }
+};
 
 export const UserService = {
   createUser,
   createHost,
   getAllUser,
   getMe,
+  updateProfile,
+  softDeleteUser,
 };
