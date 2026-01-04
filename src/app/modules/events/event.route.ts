@@ -7,6 +7,9 @@ import { UserRole } from "@prisma/client";
 
 const router = Router();
 
+router.get("/", EventController.getAllEvent);
+router.get("/:id", EventController.getEventById);
+
 router.post(
   "/",
   checkAuth(UserRole.HOST),
@@ -17,6 +20,29 @@ router.post(
     );
     return EventController.createEvent(req, res, next);
   }
+);
+
+router.patch(
+  "/:id",
+  checkAuth(UserRole.HOST, UserRole.ADMIN),
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = EventValidation.updateEventValidationSchema.parse(
+      JSON.parse(req.body.data)
+    );
+    return EventController.updateEvent(req, res, next);
+  }
+);
+router.patch(
+  "/join-event/:id",
+  checkAuth(UserRole.HOST, UserRole.ADMIN),
+  EventController.joinEvent
+);
+
+router.delete(
+  "/:id",
+  checkAuth(UserRole.HOST, UserRole.ADMIN),
+  EventController.deleteEvent
 );
 
 export const eventRoutes = router;

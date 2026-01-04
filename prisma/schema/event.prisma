@@ -9,10 +9,10 @@ model Event {
     minParticipants Int
     maxParticipants Int
     joiningFee      Int
+    joinCount       Int           @default(0)
     status          EventStatus
     hostId          String        @unique
     host            Host          @relation(fields: [hostId], references: [id])
-    userId          String[]
     review          Review[]
     createdAt       DateTime      @default(now())
     updatedAt       DateTime      @updatedAt
@@ -30,6 +30,7 @@ model Booking {
     amount             Float
     transactionId      String        @unique
     status             PaymentStatus @default(UNPAID)
+    bookingStatus      BookingStatus @default(BOOKED)
     paymentGatewayData Json?
     createdAt          DateTime      @default(now())
     updatedAt          DateTime      @updatedAt

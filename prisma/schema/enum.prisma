@@ -38,3 +38,8 @@ enum PaymentStatus {
     PAID
     UNPAID
 }
+
+enum BookingStatus {
+    BOOKED
+    CANCELLED
+}

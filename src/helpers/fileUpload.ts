@@ -31,6 +31,19 @@ const uploadToCloudinary = async (file: Express.Multer.File) => {
   return uploadResult;
 };
 
+// const deleteImage = async (publicId) => {
+//   try {
+//     const result = await cloudinary.uploader.destroy(publicId, {
+//       invalidate: true,
+//       resource_type: "image",
+//     });
+//     console.log(result, "deleted");
+
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+
 export const fileUploader = {
   upload,
   uploadToCloudinary,
