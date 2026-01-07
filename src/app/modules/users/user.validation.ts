@@ -3,7 +3,6 @@ import z from "zod";
 
 const createUserValidationSchema = z.object({
   password: z.string().nonempty("Password is required").min(6).max(20),
-  status: z.enum([...Object.values(UserStatus)]).optional(),
   userData: z.object({
     email: z.string().nonempty("Email is required"),
     name: z.string().nonempty("Name is required"),
@@ -25,6 +24,7 @@ const createHostValidationSchema = z.object({
     name: z.string().nonempty("Name is required"),
   }),
 });
+
 export const UserValidation = {
   createUserValidationSchema,
   createHostValidationSchema,

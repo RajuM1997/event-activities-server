@@ -15,6 +15,8 @@ router.post(
   "/create-user",
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.body);
+
     req.body = UserValidation.createUserValidationSchema.parse(
       JSON.parse(req.body.data)
     );
