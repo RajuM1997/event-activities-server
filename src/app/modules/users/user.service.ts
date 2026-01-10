@@ -6,8 +6,6 @@ import { fileUploader } from "../../../helpers/fileUpload";
 import { IJWTPayload } from "../../../types/common";
 
 const createUser = async (req: Request) => {
-  console.log(req.body);
-
   const file = req.file;
   const { locationData, userData } = req.body;
 

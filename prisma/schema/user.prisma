@@ -30,15 +30,19 @@ model UserProfile {
 }
 
 model Host {
-    id            String   @id @default(uuid())
-    email         String   @unique
+    id            String     @id @default(uuid())
+    email         String     @unique
     name          String?
     profilePhoto  String?
-    averageRating Float    @default(0.0)
-    isDeleted     Boolean  @default(false)
-    user          User     @relation(fields: [email], references: [email])
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
+    phoneNumber   String
+    address       String
+    bio           String?
+    status        HostStatus @default(PENDING)
+    averageRating Float      @default(0.0)
+    isDeleted     Boolean    @default(false)
+    user          User       @relation(fields: [email], references: [email])
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
     review        Review[]
     event         Event[]
 
