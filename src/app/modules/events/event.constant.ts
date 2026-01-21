@@ -1,3 +1,9 @@
-export const eventSearchableFields: string[] = ["eventName"];
-
-export const eventFilterableFields: string[] = ["category", "date", "location"];
+export const eventFilterableFields: string[] = [
+  "category",
+  "date",
+  "location",
+  "isDeleted",
+  "hostId",
+  "eventName",
+];
+export const eventSearchableFields: string[] = ["location"];

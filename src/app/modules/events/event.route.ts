@@ -8,6 +8,7 @@ import { UserRole } from "@prisma/client";
 const router = Router();
 
 router.get("/", EventController.getAllEvent);
+router.get("/my-events", checkAuth(UserRole.HOST), EventController.getMyEvents);
 
 router.get("/:id", EventController.getEventById);
 
@@ -17,10 +18,10 @@ router.post(
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = EventValidation.createEventValidationSchema.parse(
-      JSON.parse(req.body.data)
+      JSON.parse(req.body.data),
     );
     return EventController.createEvent(req, res, next);
-  }
+  },
 );
 
 router.patch(
@@ -29,34 +30,34 @@ router.patch(
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = EventValidation.updateEventValidationSchema.parse(
-      JSON.parse(req.body.data)
+      JSON.parse(req.body.data),
     );
     return EventController.updateEvent(req, res, next);
-  }
+  },
 );
 
 router.patch(
   "/join-event/:id",
   checkAuth(UserRole.USER),
-  EventController.joinEvent
+  EventController.joinEvent,
 );
 
 router.patch(
   "/cancel-event/:id",
   checkAuth(UserRole.USER),
-  EventController.cancelJoinEvent
+  EventController.cancelJoinEvent,
 );
 
 router.delete(
   "/:id",
   checkAuth(UserRole.HOST, UserRole.ADMIN),
-  EventController.deleteEvent
+  EventController.deleteEvent,
 );
 
 router.patch(
   "/soft-delete/:id",
   checkAuth(UserRole.HOST, UserRole.ADMIN),
-  EventController.softEventDelete
+  EventController.softEventDelete,
 );
 
 export const eventRoutes = router;

@@ -6,7 +6,7 @@ const createEventValidationSchema = z.object({
     eventName: z.string().nonempty("Name is required"),
     date: z.string(),
     category: z.enum([...Object.values(EventCategory)]),
-    status: z.enum([...Object.values(EventStatus)]),
+    status: z.enum([...Object.values(EventStatus)]).optional(),
     location: z.string().nonempty("Location is required"),
     description: z.string().nonempty("description is required"),
     minParticipants: z.number(),

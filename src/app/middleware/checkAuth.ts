@@ -10,17 +10,19 @@ const checkAuth = (...roles: string[]) => {
   return async (
     req: Request & { user?: any },
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const token = req.cookies.accessToken;
+      const token = req.headers.authorization || req.cookies.accessToken;
+
       if (!token) {
         throw new ApiError(httpStatus.UNAUTHORIZED, "You are not authorized");
       }
       const verifyUser = jwtHelper.verifyToken(
         token,
-        config.jwt.access_secret as string
+        config.jwt.access_secret as string,
       );
+
       let isDelete;
       if (verifyUser.role === UserRole.USER) {
         const userInfo = await prisma.userProfile.findUniqueOrThrow({
@@ -35,13 +37,14 @@ const checkAuth = (...roles: string[]) => {
             email: verifyUser.email,
           },
         });
+
         isDelete = userInfo.isDeleted;
       }
 
       if (isDelete) {
         throw new ApiError(
           httpStatus.BAD_REQUEST,
-          "Your profile already deleted you can not access this route"
+          "Your profile already deleted you can not access this route",
         );
       }
 
@@ -55,4 +58,5 @@ const checkAuth = (...roles: string[]) => {
     }
   };
 };
+
 export default checkAuth;

@@ -7,7 +7,6 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
     case "checkout.session.completed": {
       const session = event.data.object as any;
       const bookingId = session.metadata?.bookingId;
-      console.log(session.metadata);
 
       await prisma.booking.update({
         where: {

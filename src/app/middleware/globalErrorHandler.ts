@@ -7,7 +7,7 @@ const globalErrorHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   let statusCode: number = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
   let success = false;
@@ -31,7 +31,7 @@ const globalErrorHandler = (
       statusCode = httpStatus.BAD_REQUEST;
     }
     if (err.code === "P2025") {
-      message = "User not found";
+      message = "Data not found";
       statusCode = httpStatus.NOT_FOUND;
       error = err.meta;
     }

@@ -15,13 +15,11 @@ router.post(
   "/create-user",
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.body);
-
     req.body = UserValidation.createUserValidationSchema.parse(
-      JSON.parse(req.body.data)
+      JSON.parse(req.body.data),
     );
     return UserController.createUser(req, res, next);
-  }
+  },
 );
 
 router.post(
@@ -30,22 +28,24 @@ router.post(
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = UserValidation.createHostValidationSchema.parse(
-      JSON.parse(req.body.data)
+      JSON.parse(req.body.data),
     );
     return UserController.createHost(req, res, next);
-  }
+  },
 );
 
 router.patch(
   "/update-profile",
   checkAuth(...Object.values(UserRole)),
-  UserController.updateProfile
+  UserController.updateProfile,
 );
 
 router.patch(
   "/delete-profile",
   checkAuth(...Object.values(UserRole)),
-  UserController.softDeleteUser
+  UserController.softDeleteUser,
 );
+router.patch("/host-status/:id", UserController.updateHostStatus);
+router.patch("/user-status/:id", UserController.updateUserStatus);
 
 export const userRoutes = router;

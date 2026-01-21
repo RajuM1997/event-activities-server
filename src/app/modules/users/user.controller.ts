@@ -3,6 +3,7 @@ import { UserService } from "./user.service";
 import sendResponse from "../../../utils/sendResponse";
 import { catchAsync } from "../../../utils/catchAsync";
 import { IJWTPayload } from "../../../types/common";
+import { UserRole } from "@prisma/client";
 
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -14,7 +15,7 @@ const createUser = catchAsync(
       message: "User created successfully",
       data: result,
     });
-  }
+  },
 );
 
 const createHost = catchAsync(
@@ -27,12 +28,13 @@ const createHost = catchAsync(
       message: "Host created successfully",
       data: result,
     });
-  }
+  },
 );
 
 const getAllUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await UserService.getAllUser();
+    const userRole = req.query.role as UserRole;
+    const result = await UserService.getAllUser(userRole);
 
     sendResponse(res, {
       success: true,
@@ -40,14 +42,14 @@ const getAllUser = catchAsync(
       message: "User fetched successfully",
       data: result,
     });
-  }
+  },
 );
 
 const getMe = catchAsync(
   async (
     req: Request & { user?: IJWTPayload },
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     const user = req.user;
     const result = await UserService.getMe(user as IJWTPayload);
@@ -58,19 +60,19 @@ const getMe = catchAsync(
       message: "User fetched successfully",
       data: result,
     });
-  }
+  },
 );
 
 const updateProfile = catchAsync(
   async (
     req: Request & { user?: IJWTPayload },
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     const user = req.user;
     const result = await UserService.updateProfile(
       user as IJWTPayload,
-      req.body
+      req.body,
     );
 
     sendResponse(res, {
@@ -79,14 +81,45 @@ const updateProfile = catchAsync(
       message: "User profile updated successfully",
       data: result,
     });
-  }
+  },
+);
+
+const updateUserStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const result = await UserService.updateUserStatus(id, status);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: 200,
+      message: "User status updated successfully",
+      data: result,
+    });
+  },
+);
+
+const updateHostStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const result = await UserService.updateHostStatus(id, status);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: 200,
+      message: "Host status updated successfully",
+      data: result,
+    });
+  },
 );
 
 const softDeleteUser = catchAsync(
   async (
     req: Request & { user?: IJWTPayload },
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     const user = req.user;
     const result = await UserService.softDeleteUser(user as IJWTPayload);
@@ -97,7 +130,7 @@ const softDeleteUser = catchAsync(
       message: "User profile deleted successfully",
       data: result,
     });
-  }
+  },
 );
 
 export const UserController = {
@@ -107,4 +140,6 @@ export const UserController = {
   getMe,
   updateProfile,
   softDeleteUser,
+  updateHostStatus,
+  updateUserStatus,
 };

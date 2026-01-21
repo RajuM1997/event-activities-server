@@ -6,7 +6,7 @@ import { IJWTPayload } from "../../../types/common";
 import { BookingStatus, EventStatus, Prisma, UserRole } from "@prisma/client";
 import ApiError from "../../errors/ApiError";
 import { IOptions, paginationHelper } from "../../../helpers/pagination";
-import { eventFilterableFields } from "./event.constant";
+import { eventFilterableFields, eventSearchableFields } from "./event.constant";
 import { v4 as uuidv4 } from "uuid";
 import { stripe } from "../../../helpers/stripe";
 import config from "../../../config";
@@ -18,6 +18,9 @@ const createEvent = async (req: Request, user: IJWTPayload) => {
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     eventData.image = uploadToCloudinary?.secure_url;
+  }
+  if (eventData.date) {
+    eventData.date = new Date(eventData.date);
   }
 
   const host = await prisma.host.findUniqueOrThrow({
@@ -55,7 +58,7 @@ const updateEvent = async (req: Request, user: IJWTPayload) => {
   if (hostInfo?.id !== singleEvent?.hostId && user.role !== UserRole.ADMIN) {
     throw new ApiError(
       httpStatus.UNAUTHORIZED,
-      "You are able to update this event"
+      "You are able to update this event",
     );
   }
 
@@ -83,7 +86,7 @@ const deleteEvent = async (id: string, user: IJWTPayload) => {
   if (hostInfo?.id !== singleEvent?.hostId && user.role !== UserRole.ADMIN) {
     throw new ApiError(
       httpStatus.UNAUTHORIZED,
-      "You are able to delete this event"
+      "You are able to delete this event",
     );
   }
   await prisma.event.delete({ where: { id } });
@@ -92,14 +95,15 @@ const deleteEvent = async (id: string, user: IJWTPayload) => {
 const getAllEvent = async (options: IOptions, filters: any) => {
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(options);
-  const { searchTerm, ...filterData } = filters;
+  const { location, ...filterData } = filters;
+
   const andConditions: Prisma.EventWhereInput[] = [];
 
-  if (searchTerm) {
+  if (location) {
     andConditions.push({
-      OR: eventFilterableFields.map((field) => ({
+      OR: eventSearchableFields.map((field) => ({
         [field]: {
-          contains: searchTerm,
+          contains: location.trim(),
           mode: "insensitive",
         },
       })),
@@ -128,7 +132,73 @@ const getAllEvent = async (options: IOptions, filters: any) => {
       [sortBy]: sortOrder,
     },
   });
+  console.log({ result });
+
   const total = await prisma.event.count({ where: whereCondition });
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
+};
+
+const getHostEvents = async (
+  options: IOptions,
+  filters: any,
+  user: IJWTPayload,
+) => {
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(options);
+  const { searchTerm, ...filterData } = filters;
+
+  const andConditions: Prisma.EventWhereInput[] = [];
+  const host = await prisma.host.findFirstOrThrow({
+    where: {
+      email: user.email,
+    },
+  });
+  console.log({ host });
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: eventFilterableFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    const filterCondition = Object.keys(filterData).map((key) => ({
+      [key]: {
+        equals: (filterData as any)[key],
+      },
+    }));
+    andConditions.push(...filterCondition);
+  }
+  const whereCondition: Prisma.EventWhereInput =
+    andConditions.length > 0
+      ? {
+          AND: andConditions,
+        }
+      : {};
+  const result = await prisma.event.findMany({
+    where: { ...whereCondition, hostId: host.id },
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+  });
+
+  const total = await prisma.event.count({
+    where: { ...whereCondition, hostId: host.id },
+  });
   return {
     meta: {
       total,
@@ -171,7 +241,7 @@ const joinEvent = async (id: string, user: IJWTPayload) => {
     });
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      "Event participants full you can not join this event"
+      "Event participants full you can not join this event",
     );
   }
   const transactionId = uuidv4();
@@ -223,7 +293,7 @@ const joinEvent = async (id: string, user: IJWTPayload) => {
 const cancelJoinEvent = async (
   id: string,
   bookingId: string,
-  user: IJWTPayload
+  user: IJWTPayload,
 ) => {
   const userInfo = await prisma.userProfile.findUniqueOrThrow({
     where: {
@@ -266,6 +336,7 @@ const softEventDelete = async (id: string, user: IJWTPayload) => {
       email: user.email,
     },
   });
+
   const updatedEvent = await prisma.event.findUniqueOrThrow({
     where: {
       id,
@@ -274,7 +345,7 @@ const softEventDelete = async (id: string, user: IJWTPayload) => {
   if (hostInfo.id !== updatedEvent.hostId && user.role !== UserRole.ADMIN) {
     throw new ApiError(
       httpStatus.UNAUTHORIZED,
-      "You are not able to delete this event"
+      "You are not able to delete this event",
     );
   }
   await prisma.event.update({
@@ -296,4 +367,5 @@ export const EventService = {
   joinEvent,
   cancelJoinEvent,
   softEventDelete,
+  getHostEvents,
 };

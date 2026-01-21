@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { Request } from "express";
 import prisma from "../../../utils/prisma";
-import { UserRole } from "@prisma/client";
+import { HostStatus, UserRole, UserStatus } from "@prisma/client";
 import { fileUploader } from "../../../helpers/fileUpload";
 import { IJWTPayload } from "../../../types/common";
 
@@ -16,7 +16,7 @@ const createUser = async (req: Request) => {
 
   const hashPassword = await bcrypt.hash(
     req.body.password,
-    Number(process.env.BCRYPT_SALT)
+    Number(process.env.BCRYPT_SALT),
   );
 
   return prisma.$transaction(async (tnx) => {
@@ -48,7 +48,7 @@ const createHost = async (req: Request) => {
 
   const hashPassword = await bcrypt.hash(
     password,
-    Number(process.env.BCRYPT_SALT)
+    Number(process.env.BCRYPT_SALT),
   );
 
   return prisma.$transaction(async (tnx) => {
@@ -66,8 +66,9 @@ const createHost = async (req: Request) => {
   });
 };
 
-const getAllUser = async () => {
+const getAllUser = async (role: UserRole) => {
   const users = await prisma.user.findMany({
+    where: { role },
     include: {
       userProfile: {
         include: {
@@ -80,8 +81,20 @@ const getAllUser = async () => {
           },
         },
       },
+      host: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profilePhoto: true,
+          phoneNumber: true,
+          address: true,
+          status: true,
+        },
+      },
     },
   });
+
   return users;
 };
 
@@ -107,6 +120,7 @@ const getMe = async (user: IJWTPayload) => {
           transactionId: true,
           createdAt: true,
           updatedAt: true,
+          eventId: true,
         },
       },
     },
@@ -153,6 +167,30 @@ const updateProfile = async (user: IJWTPayload, payload: any) => {
   }
 };
 
+const updateUserStatus = async (id: string, status: UserStatus) => {
+  const user = await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      status,
+    },
+  });
+  return user;
+};
+
+const updateHostStatus = async (id: string, status: HostStatus) => {
+  const host = await prisma.host.update({
+    where: {
+      id,
+    },
+    data: {
+      status,
+    },
+  });
+  return host;
+};
+
 export const UserService = {
   createUser,
   createHost,
@@ -160,4 +198,6 @@ export const UserService = {
   getMe,
   updateProfile,
   softDeleteUser,
+  updateUserStatus,
+  updateHostStatus,
 };

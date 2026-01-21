@@ -11,7 +11,7 @@ model Event {
     joiningFee      Int
     joinCount       Int           @default(0)
     isDeleted       Boolean       @default(false)
-    status          EventStatus
+    status          EventStatus   @default(OPEN)
     hostId          String        @unique
     host            Host          @relation(fields: [hostId], references: [id])
     review          Review[]
