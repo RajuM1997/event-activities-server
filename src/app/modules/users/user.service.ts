@@ -123,6 +123,13 @@ const getMe = async (user: IJWTPayload) => {
           eventId: true,
         },
       },
+      location: {
+        select: {
+          city: true,
+          country: true,
+          area: true,
+        },
+      },
     },
   });
 };
