@@ -17,6 +17,8 @@ model UserProfile {
     id           String    @id() @default(uuid())
     name         String?
     profilePhoto String?
+    publicId     String?
+    filename     String?
     interests    Interests
     isDeleted    Boolean   @default(false)
     bio          String?
@@ -34,6 +36,8 @@ model Host {
     email         String     @unique
     name          String?
     profilePhoto  String?
+    publicId      String?
+    filename      String?
     phoneNumber   String
     address       String
     bio           String?

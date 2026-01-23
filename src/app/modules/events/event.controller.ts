@@ -113,6 +113,24 @@ const getMyEvents = catchAsync(
   },
 );
 
+const getMyJoiningEvents = catchAsync(
+  async (
+    req: Request & { user?: IJWTPayload },
+    res: Response,
+    next: NextFunction,
+  ) => {
+    const user = req.user as IJWTPayload;
+
+    const result = await EventService.getMyJoiningEvents(user);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "Event get successfully",
+      data: result,
+    });
+  },
+);
+
 const getEventById = catchAsync(
   async (
     req: Request & { user?: IJWTPayload },
@@ -199,4 +217,5 @@ export const EventController = {
   softEventDelete,
   cancelJoinEvent,
   getMyEvents,
+  getMyJoiningEvents,
 };

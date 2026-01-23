@@ -70,10 +70,7 @@ const updateProfile = catchAsync(
     next: NextFunction,
   ) => {
     const user = req.user;
-    const result = await UserService.updateProfile(
-      user as IJWTPayload,
-      req.body,
-    );
+    const result = await UserService.updateProfile(user as IJWTPayload, req);
 
     sendResponse(res, {
       success: true,

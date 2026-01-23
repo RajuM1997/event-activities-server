@@ -12,6 +12,8 @@ const createUser = async (req: Request) => {
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     userData.profilePhoto = uploadToCloudinary?.secure_url;
+    userData.publicId = uploadToCloudinary?.public_id;
+    userData.filename = file.filename;
   }
 
   const hashPassword = await bcrypt.hash(
@@ -44,6 +46,8 @@ const createHost = async (req: Request) => {
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     hostData.profilePhoto = uploadToCloudinary?.secure_url;
+    hostData.publicId = uploadToCloudinary?.public_id;
+    hostData.filename = file.filename;
   }
 
   const hashPassword = await bcrypt.hash(
@@ -111,18 +115,6 @@ const getMe = async (user: IJWTPayload) => {
       email: user.email,
     },
     include: {
-      booking: {
-        select: {
-          id: true,
-          amount: true,
-          bookingStatus: true,
-          status: true,
-          transactionId: true,
-          createdAt: true,
-          updatedAt: true,
-          eventId: true,
-        },
-      },
       location: {
         select: {
           city: true,
@@ -156,20 +148,54 @@ const softDeleteUser = async (user: IJWTPayload) => {
   }
 };
 
-const updateProfile = async (user: IJWTPayload, payload: any) => {
+const updateProfile = async (user: IJWTPayload, req: Request) => {
+  const file = req.file;
+  const { _email, _password, role, userData } = req.body;
+
+  if (file) {
+    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+    userData.profilePhoto = uploadToCloudinary?.secure_url;
+    userData.publicId = uploadToCloudinary?.public_id;
+    userData.filename = file.filename;
+
+    if (user.role === "HOST") {
+      const host = await prisma.host.findUnique({
+        where: {
+          email: user.email,
+        },
+      });
+      if (host?.publicId && host.filename) {
+        fileUploader.deleteImageEverywhere(host.publicId, host.filename);
+      }
+    }
+    if (user.role === "USER") {
+      const userProfile = await prisma.userProfile.findUnique({
+        where: {
+          email: user.email,
+        },
+      });
+      if (userProfile?.publicId && userProfile.filename) {
+        fileUploader.deleteImageEverywhere(
+          userProfile.publicId,
+          userProfile.filename,
+        );
+      }
+    }
+  }
+
   if (user.role === UserRole.USER) {
     return await prisma.userProfile.update({
       where: {
         email: user.email,
       },
-      data: payload,
+      data: userData,
     });
   } else {
     return await prisma.host.update({
       where: {
         email: user.email,
       },
-      data: payload,
+      data: userData,
     });
   }
 };

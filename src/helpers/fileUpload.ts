@@ -1,5 +1,6 @@
 import multer from "multer";
 import path from "path";
+import fs from "fs/promises";
 import { v2 as cloudinary } from "cloudinary";
 import config from "../config";
 
@@ -31,20 +32,31 @@ const uploadToCloudinary = async (file: Express.Multer.File) => {
   return uploadResult;
 };
 
-// const deleteImage = async (publicId) => {
-//   try {
-//     const result = await cloudinary.uploader.destroy(publicId, {
-//       invalidate: true,
-//       resource_type: "image",
-//     });
-//     console.log(result, "deleted");
+const deleteFromCloudinary = async (publicId: string) => {
+  return await cloudinary.uploader.destroy(publicId, {
+    invalidate: true,
+    resource_type: "image",
+  });
+};
 
-//   } catch (error) {
-//     console.error(error);
-//   }
-// };
+const deleteFromLocal = async (filename: string) => {
+  const filePath = path.join(process.cwd(), "uploads", filename);
+
+  try {
+    await fs.unlink(filePath);
+    console.log("Local file deleted");
+  } catch (error) {
+    console.error("Local delete failed:", error);
+  }
+};
+
+const deleteImageEverywhere = async (publicId: string, filename: string) => {
+  await deleteFromCloudinary(publicId);
+  await deleteFromLocal(filename);
+};
 
 export const fileUploader = {
   upload,
   uploadToCloudinary,
+  deleteImageEverywhere,
 };

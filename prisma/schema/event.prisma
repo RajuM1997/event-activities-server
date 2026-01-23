@@ -6,6 +6,8 @@ model Event {
     location        String
     description     String
     image           String
+    publicId        String
+    filename        String
     minParticipants Int
     maxParticipants Int
     joiningFee      Int

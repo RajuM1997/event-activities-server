@@ -18,6 +18,8 @@ const createEvent = async (req: Request, user: IJWTPayload) => {
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     eventData.image = uploadToCloudinary?.secure_url;
+    eventData.publicId = uploadToCloudinary?.public_id;
+    eventData.filename = file.filename;
   }
   if (eventData.date) {
     eventData.date = new Date(eventData.date);
@@ -42,9 +44,24 @@ const updateEvent = async (req: Request, user: IJWTPayload) => {
   const file = req.file;
   const eventData = req.body.eventData;
   const eventId = req.params.id;
+
+  const previousEvent = await prisma.event.findUnique({
+    where: {
+      id: eventId,
+    },
+  });
+
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     eventData.image = uploadToCloudinary?.secure_url;
+    eventData.publicId = uploadToCloudinary?.public_id;
+    eventData.filename = file.filename;
+    if (previousEvent?.publicId) {
+      fileUploader.deleteImageEverywhere(
+        previousEvent.publicId,
+        previousEvent.filename,
+      );
+    }
   }
   const hostInfo = await prisma.host.findUnique({
     where: {
@@ -132,7 +149,6 @@ const getAllEvent = async (options: IOptions, filters: any) => {
       [sortBy]: sortOrder,
     },
   });
-  console.log({ result });
 
   const total = await prisma.event.count({ where: whereCondition });
   return {
@@ -358,6 +374,35 @@ const softEventDelete = async (id: string, user: IJWTPayload) => {
   });
 };
 
+const getMyJoiningEvents = async (user: IJWTPayload) => {
+  return await prisma.userProfile.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+    include: {
+      booking: {
+        select: {
+          id: true,
+          amount: true,
+          bookingStatus: true,
+          status: true,
+          transactionId: true,
+          createdAt: true,
+          updatedAt: true,
+          eventId: true,
+          event: {
+            select: {
+              eventName: true,
+              category: true,
+              date: true,
+            },
+          },
+        },
+      },
+    },
+  });
+};
+
 export const EventService = {
   createEvent,
   updateEvent,
@@ -368,4 +413,5 @@ export const EventService = {
   cancelJoinEvent,
   softEventDelete,
   getHostEvents,
+  getMyJoiningEvents,
 };

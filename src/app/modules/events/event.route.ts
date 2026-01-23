@@ -9,6 +9,11 @@ const router = Router();
 
 router.get("/", EventController.getAllEvent);
 router.get("/my-events", checkAuth(UserRole.HOST), EventController.getMyEvents);
+router.get(
+  "/my-joining-events",
+  checkAuth(UserRole.USER),
+  EventController.getMyJoiningEvents,
+);
 
 router.get("/:id", EventController.getEventById);
 
