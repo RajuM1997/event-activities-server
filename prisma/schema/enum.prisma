@@ -32,6 +32,11 @@ enum EventCategory {
     Movie_Night
     Stand_up_Comedy
     Theater
+    Hackathon
+    Dev_Meetup
+    Tech_Talk
+    Coding_Workshop
+    Networking_Event
 }
 
 enum PaymentStatus {

@@ -323,6 +323,17 @@ const cancelJoinEvent = async (
       eventId: id,
     },
   });
+  const event = await prisma.event.findFirstOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const currentDate = new Date();
+
+  if (!(new Date(event.date) < currentDate)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "You can not cancel this event");
+  }
 
   return await prisma.$transaction(async (tnx) => {
     await tnx.event.update({
