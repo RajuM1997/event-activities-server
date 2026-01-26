@@ -35,9 +35,29 @@ router.post(
 );
 
 router.patch(
-  "/update-profile",
+  "/update-user-profile",
   checkAuth(...Object.values(UserRole)),
-  UserController.updateProfile,
+
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = UserValidation.updateHostValidationSchema.parse(
+      JSON.parse(req.body.data),
+    );
+    return UserController.updateUserProfile(req, res, next);
+  },
+);
+
+router.patch(
+  "/update-host-profile",
+  checkAuth(...Object.values(UserRole)),
+
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = UserValidation.updateHostValidationSchema.parse(
+      JSON.parse(req.body.data),
+    );
+    return UserController.updateHostProfile(req, res, next);
+  },
 );
 
 router.patch(

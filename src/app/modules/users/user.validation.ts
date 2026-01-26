@@ -28,7 +28,31 @@ const createHostValidationSchema = z.object({
   }),
 });
 
+const updateUserValidationSchema = z.object({
+  userData: z.object({
+    name: z.string().optional(),
+    bio: z.string().optional(),
+    interests: z.enum([...Object.values(Interests)]).optional(),
+  }),
+  locationData: z.object({
+    city: z.string().optional(),
+    area: z.string().optional(),
+    country: z.string().optional(),
+  }),
+});
+
+const updateHostValidationSchema = z.object({
+  hostData: z.object({
+    name: z.string().optional(),
+    phoneNumber: z.string().optional(),
+    address: z.string().optional(),
+    bio: z.string().optional(),
+  }),
+});
+
 export const UserValidation = {
   createUserValidationSchema,
   createHostValidationSchema,
+  updateUserValidationSchema,
+  updateHostValidationSchema,
 };

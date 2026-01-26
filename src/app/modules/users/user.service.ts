@@ -165,26 +165,15 @@ const softDeleteUser = async (user: IJWTPayload) => {
   }
 };
 
-const updateProfile = async (user: IJWTPayload, req: Request) => {
+const updateUserProfile = async (user: IJWTPayload, req: Request) => {
   const file = req.file;
-  const { _email, _password, role, userData } = req.body;
+  const { userData } = req.body;
 
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     userData.profilePhoto = uploadToCloudinary?.secure_url;
     userData.publicId = uploadToCloudinary?.public_id;
     userData.filename = file.filename;
-
-    if (user.role === "HOST") {
-      const host = await prisma.host.findUnique({
-        where: {
-          email: user.email,
-        },
-      });
-      if (host?.publicId && host.filename) {
-        fileUploader.deleteImageEverywhere(host.publicId, host.filename);
-      }
-    }
     if (user.role === "USER") {
       const userProfile = await prisma.userProfile.findUnique({
         where: {
@@ -200,21 +189,42 @@ const updateProfile = async (user: IJWTPayload, req: Request) => {
     }
   }
 
-  if (user.role === UserRole.USER) {
-    return await prisma.userProfile.update({
-      where: {
-        email: user.email,
-      },
-      data: userData,
-    });
-  } else {
-    return await prisma.host.update({
-      where: {
-        email: user.email,
-      },
-      data: userData,
-    });
+  return await prisma.userProfile.update({
+    where: {
+      email: user.email,
+    },
+    data: userData,
+  });
+};
+
+const updateHostProfile = async (user: IJWTPayload, req: Request) => {
+  const file = req.file;
+  const { hostData } = req.body;
+
+  if (file) {
+    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+    hostData.profilePhoto = uploadToCloudinary?.secure_url;
+    hostData.publicId = uploadToCloudinary?.public_id;
+    hostData.filename = file.filename;
+
+    if (user.role === "HOST") {
+      const host = await prisma.host.findUnique({
+        where: {
+          email: user.email,
+        },
+      });
+      if (host?.publicId && host.filename) {
+        fileUploader.deleteImageEverywhere(host.publicId, host.filename);
+      }
+    }
   }
+
+  return await prisma.host.update({
+    where: {
+      email: user.email,
+    },
+    data: hostData,
+  });
 };
 
 const updateUserStatus = async (id: string, status: UserStatus) => {
@@ -246,8 +256,9 @@ export const UserService = {
   createHost,
   getAllUser,
   getMe,
-  updateProfile,
+  updateUserProfile,
   softDeleteUser,
   updateUserStatus,
   updateHostStatus,
+  updateHostProfile,
 };

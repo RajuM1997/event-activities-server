@@ -63,19 +63,43 @@ const getMe = catchAsync(
   },
 );
 
-const updateProfile = catchAsync(
+const updateUserProfile = catchAsync(
   async (
     req: Request & { user?: IJWTPayload },
     res: Response,
     next: NextFunction,
   ) => {
     const user = req.user;
-    const result = await UserService.updateProfile(user as IJWTPayload, req);
+    const result = await UserService.updateUserProfile(
+      user as IJWTPayload,
+      req,
+    );
 
     sendResponse(res, {
       success: true,
       statusCode: 200,
       message: "User profile updated successfully",
+      data: result,
+    });
+  },
+);
+
+const updateHostProfile = catchAsync(
+  async (
+    req: Request & { user?: IJWTPayload },
+    res: Response,
+    next: NextFunction,
+  ) => {
+    const user = req.user;
+    const result = await UserService.updateHostProfile(
+      user as IJWTPayload,
+      req,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: 200,
+      message: "Host profile updated successfully",
       data: result,
     });
   },
@@ -135,8 +159,9 @@ export const UserController = {
   createHost,
   getAllUser,
   getMe,
-  updateProfile,
+  updateUserProfile,
   softDeleteUser,
   updateHostStatus,
   updateUserStatus,
+  updateHostProfile,
 };
