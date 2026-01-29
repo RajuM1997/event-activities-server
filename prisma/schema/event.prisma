@@ -2,7 +2,6 @@ model Event {
     id              String        @id() @default(ulid())
     eventName       String
     date            DateTime
-    startTime       Int
     category        EventCategory
     location        String
     description     String

@@ -127,16 +127,28 @@ const getMe = async (user: IJWTPayload) => {
       },
     });
   }
-  return await prisma.userProfile.findUniqueOrThrow({
+
+  return await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
     },
-    include: {
-      location: {
+    select: {
+      role: true,
+      email: true,
+      userProfile: {
         select: {
-          city: true,
-          country: true,
-          area: true,
+          id: true,
+          email: true,
+          name: true,
+          profilePhoto: true,
+          bio: true,
+          location: {
+            select: {
+              city: true,
+              country: true,
+              area: true,
+            },
+          },
         },
       },
     },
