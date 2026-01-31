@@ -12,13 +12,13 @@ const app: Application = express();
 app.post(
   "/webhook",
   express.raw({ type: "application/json" }),
-  BookingController.handleStripeWebhookEvent
+  BookingController.handleStripeWebhookEvent,
 );
 app.use(
   cors({
     origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
-  })
+  }),
 );
 
 //parser

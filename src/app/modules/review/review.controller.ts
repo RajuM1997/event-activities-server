@@ -8,10 +8,11 @@ const createReview = catchAsync(
   async (
     req: Request & { user?: IJWTPayload },
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     const user = req.user as IJWTPayload;
     const payload = req.body;
+
     const result = await ReviewService.createReview(user, payload);
 
     sendResponse(res, {
@@ -20,7 +21,7 @@ const createReview = catchAsync(
       message: "Review create successfully",
       data: result,
     });
-  }
+  },
 );
 
 export const ReviewController = {

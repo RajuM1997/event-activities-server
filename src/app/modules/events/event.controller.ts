@@ -68,7 +68,6 @@ const getAllEvent = catchAsync(
     const isDeleted = req.query.isDelete === "true";
     const option = pick(req.query, sortAndPaginationFields);
     const filters = pick(req.query, eventFilterableFields);
-    console.log(option);
 
     const result = await EventService.getAllEvent(option, {
       ...filters,

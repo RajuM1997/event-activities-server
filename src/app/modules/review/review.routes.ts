@@ -11,7 +11,7 @@ router.post(
   "/",
   checkAuth(UserRole.USER),
   validateRequest(ReviewValidation.createReviewValidationSchema),
-  ReviewController.createReview
+  ReviewController.createReview,
 );
 
 export const reviewRoutes = router;

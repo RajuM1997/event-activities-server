@@ -112,7 +112,7 @@ const deleteEvent = async (id: string, user: IJWTPayload) => {
 const getAllEvent = async (options: IOptions, filters: any) => {
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(options);
-  const { location, ...filterData } = filters;
+  const { location, date, ...filterData } = filters;
 
   const andConditions: Prisma.EventWhereInput[] = [];
 
@@ -124,6 +124,20 @@ const getAllEvent = async (options: IOptions, filters: any) => {
           mode: "insensitive",
         },
       })),
+    });
+  }
+  if (date) {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    andConditions.push({
+      date: {
+        gte: startOfDay,
+        lte: endOfDay,
+      },
     });
   }
 
@@ -176,7 +190,6 @@ const getHostEvents = async (
       email: user.email,
     },
   });
-  console.log({ host });
 
   if (searchTerm) {
     andConditions.push({
@@ -232,6 +245,8 @@ const getEventById = async (id: string) => {
     },
     include: {
       host: true,
+      review: true,
+      booking: true,
     },
   });
   return event;

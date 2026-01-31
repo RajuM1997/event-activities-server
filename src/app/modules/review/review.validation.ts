@@ -1,9 +1,11 @@
 import z from "zod";
 
 const createReviewValidationSchema = z.object({
-  eventId: z.string().nonempty("event id is required"),
-  rating: z.float32(),
-  comment: z.string().nonempty("Comment is required"),
+  body: z.object({
+    eventId: z.string(),
+    rating: z.number(),
+    comment: z.string().min(10),
+  }),
 });
 
 export const ReviewValidation = {

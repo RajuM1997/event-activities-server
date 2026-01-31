@@ -16,9 +16,21 @@ const globalErrorHandler = (
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
-      message = "Duplicate key error";
-      err = err.meta;
+      const fields = (err.meta?.target as string[]) || [];
+      const fieldName = fields.join(", ");
+
+      message = fieldName
+        ? `${fieldName} already exists`
+        : "Duplicate value already exists";
+
       statusCode = httpStatus.CONFLICT;
+      error = {
+        code: err.code,
+        fields,
+      };
+      if (err?.meta?.modelName === "Review") {
+        message = "You have already submitted a review for this event.";
+      }
     }
     if (err.code === "P1001") {
       message = "Authentication failed against database server";
