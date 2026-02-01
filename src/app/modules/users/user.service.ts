@@ -103,31 +103,6 @@ const getAllUser = async (role: UserRole) => {
 };
 
 const getMe = async (user: IJWTPayload) => {
-  if (user.role === UserRole.HOST) {
-    return await prisma.user.findUniqueOrThrow({
-      where: {
-        email: user.email,
-      },
-      select: {
-        role: true,
-        email: true,
-        host: {
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            address: true,
-            averageRating: true,
-            status: true,
-            phoneNumber: true,
-            profilePhoto: true,
-            bio: true,
-          },
-        },
-      },
-    });
-  }
-
   return await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
@@ -149,6 +124,19 @@ const getMe = async (user: IJWTPayload) => {
               area: true,
             },
           },
+        },
+      },
+      host: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          address: true,
+          averageRating: true,
+          status: true,
+          phoneNumber: true,
+          profilePhoto: true,
+          bio: true,
         },
       },
     },
