@@ -135,13 +135,59 @@ Server will run at: `http://localhost:8800`
 ## 📂 Project Structure
 
 ```txt
-src/
- ├─ app/            # App setup
- ├─ modules/        # Feature modules (event, review, booking)
- ├─ middlewares/    # Auth & validation middleware
- ├─ errors/         # Custom errors
- ├─ utils/          # Helpers
- └─ prisma/         # Prisma schema
+backend/
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/
+│
+├── src/
+│   ├── app/
+│   │   ├── errors/
+│   │   │   ├── ApiError.ts
+│   │   │   └── handleValidationError.ts
+│   │   │
+│   │   ├── interface/
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── middleware/
+│   │   │   ├── auth.ts
+│   │   │   ├── validateRequest.ts
+│   │   │   └── globalErrorHandler.ts
+│   │   │
+│   │   ├── modules/
+│   │   │   ├── auth/
+│   │   │   ├── user/
+│   │   │   ├── event/
+│   │   │   ├── booking/
+│   │   │   ├── review/
+│   │   │   └── host/
+│   │   │
+│   │   └── routes/
+│   │       └── index.ts
+│   │
+│   ├── config/
+│   │   ├── env.ts
+│   │   └── index.ts
+│   │
+│   ├── helpers/
+│   │   ├── paginationHelper.ts
+│   │   └── jwtHelper.ts
+│   │
+│   ├── types/
+│   │   └── common.ts
+│   │
+│   ├── utils/
+│   │   ├── catchAsync.ts
+│   │   ├── pick.ts
+│   │   └── sendResponse.ts
+│   │
+│   ├── app.ts
+│   └── server.ts
+│
+├── .env
+├── package.json
+└── tsconfig.json
+
 ```
 
 ---
