@@ -10,13 +10,9 @@ const createReview = async (user: IJWTPayload, payload: Partial<Review>) => {
       email: user.email,
     },
   });
-
-  const bookingData = await prisma.booking.findUniqueOrThrow({
-    where: {
-      userId: userData.id,
-      eventId: payload.eventId,
-    },
-  });
+  if (!userData.id || !payload.id) {
+    throw new ApiError(401, "");
+  }
 
   const eventData = await prisma.event.findUniqueOrThrow({
     where: {
@@ -24,16 +20,12 @@ const createReview = async (user: IJWTPayload, payload: Partial<Review>) => {
     },
   });
 
-  if (userData.id !== bookingData.userId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "This is not your appointment");
-  }
-
   return await prisma.$transaction(async (tnx) => {
     const result = await tnx.review.create({
       data: {
         eventId: eventData.id,
         hostId: eventData.hostId,
-        userId: bookingData.userId,
+        userId: userData.id,
         rating: Number(payload.rating),
         comment: payload.comment as string,
       },

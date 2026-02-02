@@ -336,18 +336,6 @@ const cancelJoinEvent = async (
   bookingId: string,
   user: IJWTPayload,
 ) => {
-  const userInfo = await prisma.userProfile.findUniqueOrThrow({
-    where: {
-      email: user.email,
-    },
-  });
-
-  await prisma.booking.findUniqueOrThrow({
-    where: {
-      userId: userInfo.id,
-      eventId: id,
-    },
-  });
   const event = await prisma.event.findFirstOrThrow({
     where: {
       id,
