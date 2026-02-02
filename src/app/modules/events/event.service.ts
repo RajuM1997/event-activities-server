@@ -171,11 +171,13 @@ const getAllEvent = async (options: IOptions, filters: any) => {
   });
 
   const total = await prisma.event.count({ where: whereCondition });
+  const totalPages = Math.ceil(total / limit);
   return {
     meta: {
       total,
       page,
       limit,
+      totalPages,
     },
     data: result,
   };
@@ -234,11 +236,13 @@ const getHostEvents = async (
   const total = await prisma.event.count({
     where: { ...whereCondition, hostId: host.id },
   });
+  const totalPages = Math.ceil(total / limit);
   return {
     meta: {
       total,
       page,
       limit,
+      totalPages,
     },
     data: result,
   };
