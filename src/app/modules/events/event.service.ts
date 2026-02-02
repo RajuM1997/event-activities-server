@@ -29,6 +29,12 @@ const createEvent = async (req: Request, user: IJWTPayload) => {
     where: { email: user.email },
   });
 
+  if (host.status !== "ACCEPTED") {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "You are not able to create event",
+    );
+  }
   if (host) {
     eventData.hostId = host.id;
   }

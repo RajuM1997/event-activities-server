@@ -65,7 +65,15 @@ router.patch(
   checkAuth(...Object.values(UserRole)),
   UserController.softDeleteUser,
 );
-router.patch("/host-status/:id", UserController.updateHostStatus);
-router.patch("/user-status/:id", UserController.updateUserStatus);
+router.patch(
+  "/host-status/:id",
+  checkAuth(UserRole.ADMIN),
+  UserController.updateHostStatus,
+);
+router.patch(
+  "/user-status/:id",
+  checkAuth(UserRole.ADMIN),
+  UserController.updateUserStatus,
+);
 
 export const userRoutes = router;
