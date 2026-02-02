@@ -18,6 +18,7 @@ const globalErrorHandler = (
     if (err.code === "P2002") {
       const fields = (err.meta?.target as string[]) || [];
       const fieldName = fields.join(", ");
+      console.log(err?.meta);
 
       message = fieldName
         ? `${fieldName} already exists`

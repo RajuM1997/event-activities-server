@@ -14,7 +14,7 @@ model Event {
     joinCount       Int           @default(0)
     isDeleted       Boolean       @default(false)
     status          EventStatus   @default(OPEN)
-    hostId          String        @unique
+    hostId          String
     host            Host          @relation(fields: [hostId], references: [id])
     review          Review[]
     createdAt       DateTime      @default(now())
