@@ -1,7 +1,6 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express, { Application, NextFunction, Request, Response } from "express";
-import httpStatus from "http-status";
+import express, { Application, Request, Response } from "express";
 import router from "./app/routes";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
@@ -16,7 +15,7 @@ app.post(
 );
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: ["http://localhost:3000", "https://joinup-event.vercel.app"],
     credentials: true,
   }),
 );
