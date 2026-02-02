@@ -313,7 +313,7 @@ const joinEvent = async (id: string, user: IJWTPayload) => {
         bookingId: bookingData.id,
       },
       mode: "payment",
-      success_url: `${config.client_url}/events/my-event?success=true`,
+      success_url: `${config.client_url}/events/my-events?success=true`,
       cancel_url: `${config.client_url}?cancel=false`,
     });
 

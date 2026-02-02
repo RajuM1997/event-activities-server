@@ -4,6 +4,9 @@ import sendResponse from "../../../utils/sendResponse";
 import { catchAsync } from "../../../utils/catchAsync";
 import { IJWTPayload } from "../../../types/common";
 import { UserRole } from "@prisma/client";
+import pick from "../../../helpers/pick";
+import { sortAndPaginationFields } from "../../../utils/common.constant";
+import { userFilterableFields } from "./user.constant";
 
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -34,13 +37,16 @@ const createHost = catchAsync(
 const getAllUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const userRole = req.query.role as UserRole;
-    const result = await UserService.getAllUser(userRole);
+    const option = pick(req.query, sortAndPaginationFields);
+    const filters = pick(req.query, userFilterableFields);
+    const result = await UserService.getAllUser(userRole, option, filters);
 
     sendResponse(res, {
       success: true,
       statusCode: 200,
       message: "User fetched successfully",
-      data: result,
+      meta: result.meta,
+      data: result.data,
     });
   },
 );

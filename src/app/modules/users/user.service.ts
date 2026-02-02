@@ -1,9 +1,10 @@
 import bcrypt from "bcryptjs";
 import { Request } from "express";
 import prisma from "../../../utils/prisma";
-import { HostStatus, UserRole, UserStatus } from "@prisma/client";
+import { HostStatus, Prisma, UserRole, UserStatus } from "@prisma/client";
 import { fileUploader } from "../../../helpers/fileUpload";
 import { IJWTPayload } from "../../../types/common";
+import { IOptions, paginationHelper } from "../../../helpers/pagination";
 
 const createUser = async (req: Request) => {
   const file = req.file;
@@ -70,9 +71,31 @@ const createHost = async (req: Request) => {
   });
 };
 
-const getAllUser = async (role: UserRole) => {
-  const users = await prisma.user.findMany({
-    where: { role },
+const getAllUser = async (role: UserRole, options: IOptions, filters: any) => {
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(options);
+  const { ...filterData } = filters;
+
+  const andConditions: Prisma.UserWhereInput[] = [];
+
+  if (Object.keys(filterData).length > 0) {
+    const filterCondition = Object.keys(filterData).map((key) => ({
+      [key]: {
+        equals: (filterData as any)[key],
+      },
+    }));
+    andConditions.push(...filterCondition);
+  }
+  const whereCondition: Prisma.UserWhereInput =
+    andConditions.length > 0
+      ? {
+          AND: andConditions,
+        }
+      : {};
+  const result = await prisma.user.findMany({
+    where: whereCondition,
+    skip,
+    take: limit,
     include: {
       userProfile: {
         include: {
@@ -97,9 +120,20 @@ const getAllUser = async (role: UserRole) => {
         },
       },
     },
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
   });
 
-  return users;
+  const total = await prisma.user.count({ where: whereCondition });
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
 };
 
 const getMe = async (user: IJWTPayload) => {

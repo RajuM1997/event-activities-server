@@ -31,7 +31,8 @@ const checkAuth = (...roles: string[]) => {
           },
         });
         isDelete = userInfo.isDeleted;
-      } else {
+      }
+      if (verifyUser.role === UserRole.HOST) {
         const userInfo = await prisma.host.findUniqueOrThrow({
           where: {
             email: verifyUser.email,
