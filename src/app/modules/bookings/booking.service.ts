@@ -3,12 +3,10 @@ import { PaymentStatus } from "@prisma/client";
 import prisma from "../../../utils/prisma";
 
 const handleStripeWebhookEvent = async (event: Stripe.Event) => {
-  console.log(event.type);
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as any;
       const bookingId = session.metadata?.bookingId;
-      console.log(bookingId);
 
       await prisma.booking.update({
         where: {

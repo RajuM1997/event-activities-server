@@ -20,10 +20,8 @@ const handleStripeWebhookEvent = catchAsync(
     } catch (error) {
       return res.status(400).send(`Webhook Error: ${error}`);
     }
-    console.log(event);
 
     const result = await BookingService.handleStripeWebhookEvent(event);
-    console.log(result);
 
     sendResponse(res, {
       success: true,
