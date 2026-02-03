@@ -10,9 +10,6 @@ const createReview = async (user: IJWTPayload, payload: Partial<Review>) => {
       email: user.email,
     },
   });
-  if (!userData.id || !payload.id) {
-    throw new ApiError(401, "");
-  }
 
   const eventData = await prisma.event.findUniqueOrThrow({
     where: {

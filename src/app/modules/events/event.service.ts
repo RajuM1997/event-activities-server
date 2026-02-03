@@ -344,7 +344,7 @@ const cancelJoinEvent = async (
 
   const currentDate = new Date();
 
-  if (!(new Date(event.date) < currentDate)) {
+  if (currentDate >= new Date(event.date)) {
     throw new ApiError(httpStatus.BAD_REQUEST, "You can not cancel this event");
   }
 
