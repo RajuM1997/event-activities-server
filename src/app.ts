@@ -13,6 +13,7 @@ app.post(
   express.raw({ type: "application/json" }),
   BookingController.handleStripeWebhookEvent,
 );
+
 app.use(
   cors({
     origin: ["http://localhost:3000", "https://joinup-event.vercel.app"],
